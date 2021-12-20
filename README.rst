@@ -8,7 +8,7 @@
      :target: http://dx.doi.org/10.5281/zenodo.#####
 
 ################################################################################################
-The past, present and future of the Vera Rubin Observatory Observatory Control System Middleware
+The past, present and future of the Vera Rubin Observatory Control System Middleware
 ################################################################################################
 
 TSTN-028
