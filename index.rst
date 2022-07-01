@@ -122,7 +122,110 @@ The transition required low-level of effort and had no impact on to the higher l
 The Present
 ===========
 
-TBD
+At the present state of the project, we have been routinely deploying and testing a stable system comprised of the majority of the components that are part of the Rubin-OCS at the summit (e.g. production environment) and the Tucson Test Stand.
+
+Achieving this stage of the project was not without its challenges related to DDS.
+In fact, it took our team a good part of a year to be able to obtain a stable system.
+Our findings are summarized in :tstn:`023`.
+
+Nevertheless, even after all these efforts we still encounter DDS-related issues.
+As we mentioned above, some of them are a result of the choice of configuration settings, which are quite extensive in DDS.
+Others are related to network outages (momentarily or not), and/or fluctuations in the network traffic and how they are handled by the ADLink-OpenSpliceDDS library.
+
+A more serious and worrisome cathegory of issues are related to software errors in the ADLink-OpenSpliceDDS software stack.
+For those issues that we are able to track down, we routinely open cases with ADLink.
+However, their responses to some of the issues we encounter are lacking.
+
+Furthermore, ADLink has recently `announced`_ that they would no longer support the public version of OpenSpliceDDS.
+In their announcement, they suggest that users of the library should migrate to the new and upcomming `Cyclone DDS`_.
+
+.. _announced: https://github.com/ADLINK-IST/opensplice#announcement
+.. _Cyclone DDS: https://projects.eclipse.org/projects/iot.cyclonedds
+
+Although, they are still officially supporting the licensed version of OpenSpliceDDS, this move is worrisome as it suggest ADLink-OpenSpliceDDS might be trailing towars its end-of-life.
+This exposes our project to serious risk, especially considering the expected initial lifetime of the project (the 10 years of operations of the survey).
+
+Anticipating the need to replace OpenSpliceDDS by some other middleware technology, our team has been studying possible alternatives.
+We focused most of our efforts in protocols that support the so-called publish-subscribe model, which is the one used by DDS, but we also explored other alternatives as well.
+The details of our study are outside the scope of this document however, we have cathegorized our findings as follows:
+
+-  Alternative DDS implementations.
+
+   ADLink-OpenSpliceDDS is one of many implementations of the DDS standard.
+   There are, in fact, a breadth of alternative solutions available, both public and private.
+
+   Notably, RTI-Connext, which was initially used in SAL is still viable option worth exploring.
+   We scheduled a meeting with an engineer and a commercial representative from RTI to discuss the several questions we had with their system, both technical and licensing.
+   Unfortunately, not much have changed since we replaced RTI-Connext with ADLink-OpenSpliceDDS, and the issues we had in the past were still relevant.
+   It is also worth noting that their Python support is still a concern (see furthermore).
+
+-  Lack of durability service.
+
+   As we mentioned previously, a good fraction of message passing systems lacks support for durability service, especially those that are deemed "real-time" systems which, in general, opt to a brokerless architecture.
+
+   Some examples of message systems that falls in this cathegory are ZeroMQ and nanomessage.
+   Both these solutions are advertised as brokerless with "real-time" capabilities.
+   ZeroMQ is known by its simplicity and easy to use whereas nanomessage was adopted as the message system for GMT.
+
+-  Python libraries and support for asyncio.
+
+   With Python being a popular language, one would expect to find broad support for the majority of the message passing systems.
+   Nevertheless, the reality of it is that most systems provide Python support through non-native C bindings.
+   This is, for instance, the case with the ADLink-OpenSpliceDDS we currently use.
+
+   It is also extremely rare to find message systems with native support for Python asyncio, which is heavily used in salobj.
+
+-  Real-time capabilities.
+
+   Although the definition of what a real-time message passing system is not well defined, it is generally accepted that they must have latency on the range of 6-20 milliseconds or better :cite:`DBLP:books/daglib/0007303`.
+
+   The vast majority of message passing systems claim to be capable of real-time data transport.
+   
+   Nevertheless, because the definition of real-time is somewhat loose, those claims can be challenged and most importantly, need to be put into context for a particular system and verified.
+
+   As mentioned previously, the tracking requirements on Rubin-OCS demands latency of around 3ms.
+   Any system we choose must first be capable of achieving these levels of latency under the conditions imposed by our system, regardless of their claims.
+
+-  Alternative architectures.
+
+   There are some existing frameworks both in industry and adopted by different observatories that, in principle, could provide a viable alternative to DDS as a middleware though they implement different architectures.
+
+   Probably the best example of frameworks on this cathegory is `TANGO`_ which, in turn, is desiged on top of the `CORBA`_ middleware.
+
+   .. note:
+
+      It is worth noting that both CORBA and DDS standards are managed by the same organization, the Object Management Group (`OMG`_`) and both rely on the Interface Description Language (`IDL`_).
+
+   Contrary to DDS, which defines a data-driven (publish-subscribe) architecture, CORBA implements an object-oriented model which is more suitable for a hierarchical system architecture.
+
+   Although it would be, in principle, possible to use CORBA in a data-driven scenario, it is not what it was desiged for, which makes it hard to anticipate pitfalls we could encounter in the adoption process.
+
+   Therefore, even though we explored some of these alternative architectures systems, and some of them shows some promise, it seems like a larger risk than to find a suitable publish-subscribe alternative to DDS.
+
+.. _TANGO: https://www.esrf.fr/computing/cs/tango/tango_doc/icaleps99/WA2I01.html
+.. _CORBA: https://www.corba.org
+.. _OMG: https://www.omg.org
+.. _IDL: https://www.omg.org/spec/IDL/4.2/About-IDL/
+
+After extensively researching alternatives to ADLink-OpenSpliceDDS (and DDS) we have finally converged into a best alternaltive; `Kafka`_.
+
+`Kafka`_ is an open source event streaming platform that is broadly used in industry.
+In fact, it is already an intergral part of the Rubin-OCS, as it is used in the EFD to transport the data from DDS to influxDB (:sqr:`034` :cite:`SQR-034`).
+
+.. _Kafka: https://kafka.apache.org
+
+The fact that we are already using Kafka in the system reliably to ingest data into the EFD gives us confidence that it is, at the very least, able to handle the overall data throughput.
+Our main concern is than to verify that Kafka can handle the latency requirements of our system.
+In principle, Kafka is advertised as a "real-time" system and inumerous benchmarks exists online showing it can reach latencies at the millisecond regime.
+Nevertheless, it is unclear those benchmarks would be applied to our systems constrains, giving the tipical message size, network architecture and other relevant factors.
+
+We then proceded to perform benchmarks with the intention to evaluate Kafka's performance considering our system architecture.
+The results, which are detailed in :tstn:`033`, are encouraging.
+In summray, we obtain similar latency levels for Kafka and DDS.
+In terms of throughput, DDS is considerably better than Kafka for smaller messages, though we obtain similar values for larger messages.
+
+Overall, our detailed study shows that Kafka would be a viable option for replacing DDS as the middleware technology in our system.
+For a full technical report we refer the reader to the technote.
 
 The Future
 ==========
@@ -134,9 +237,9 @@ Summary
 
 TBD
 
-.. .. rubric:: References
+.. rubric:: References
 
 .. Make in-text citations with: :cite:`bibkey`.
 
-.. .. bibliography:: local.bib lsstbib/books.bib lsstbib/lsst.bib lsstbib/lsst-dm.bib lsstbib/refs.bib lsstbib/refs_ads.bib
-..    :style: lsst_aa
+.. bibliography:: local.bib lsstbib/books.bib lsstbib/lsst.bib lsstbib/lsst-dm.bib lsstbib/refs.bib lsstbib/refs_ads.bib
+   :style: lsst_aa
