@@ -48,7 +48,76 @@ With this high-level overview of the system in mind, we will now focus on SAL an
 The Past
 ========
 
-TBD
+Probably the most important thing for us to consider when speaking about the past, is trying to understand why DDS was selection in the first place and then why the ADLink-OpenSpliceDDS implementation was adopted.
+
+To put it in perspective, the firt commit to the current `SAL code repository`_ dates back to August 2014, some 8 years from the time of this writting and almost a whole year before the construction `first stone`_.
+For comparisom, the Apache Kafka message system first stable release dates back to January 2011, whereas the `DDS version 1.0 standard` dates back to December 2004.
+
+.. _SAL code repository: https://github.com/lsst-ts/ts_sal
+.. _first stone: https://www.nsf.gov/news/news_summ.jsp?cntn_id=134805&org=NSF&from=news
+.. _DDS version 1.0 standard: https://www.omg.org/spec/DDS/1.0
+
+At the time when decision was being made about selecting a middleware technology, DDS was a mature standard.
+The technology defines a powerfull real-time message system protocol with high inter-operability between platforms and programming languanges.
+In fact, DDS has most of the important features we recognize as crucial for the Rubin-OCS.
+Some of the most important ones are, for example:
+
+-  Real-time message transfer capabilities.
+
+   DDS is a brokerless messaging system with small overhead.
+   As such, it is capable of high-throughput and low-latency data transfer.
+   For example, in our `internal benchmarks`_, DDS reached transfer rates of the order of >16kHz with millisecond latency.
+   This is certainly way beyond the requirements of our system, which are mostly constrained by the throughput of M1M3 (REQ?) and the throughput/latency required for tracking (LTS-TCS-PTG-0008 and LTS-TCS-PTG-0001 in :lts:`583` specify lead-times between 50-70ms with standard deviation of 3ms for tracking demands).
+
+-  Durability service.
+
+   In messaging systems, "durability" refer to the capability of a system to store published data and serve it to components that join the system afterwards.
+   This service is crucial for a distributed system like Rubin-OCS as it guarantees that components comming online at any time are able to determine the state of the system by accessing previously published information.
+
+   A surprising number of systems do not provide any type of durability service, especially those that are deemed "real-time".
+
+   This mostly boils down from the fact that most real-time capable systems are brokerless (like DDS).
+   Nevertheless, in order to provide a durability service, a system must have some kind of broker, that can store published messages and distribute them when needed.
+
+   DDS provides a rather elegant solution to this problem.
+   Basically, each independent node can be configure to act as a broker for durability service.
+   One of those systems is elected as the "master" node, which will be in charge of actually distributing the data.
+   If the master node falls over, some other node is elected to take its place.
+
+   Nevertheless, as we have demonstrated in our efforts to stabilize the system (:tstn:`023`), this can have a huge impact in the system performance and adds considerable complexity in configuring the system.
+
+-  The Quality of Service (QoS) dictates how messages are delivered under different network scenarios.
+
+   DDS has an extremely rich QoS system with several configuration parameters.
+   Nevertheless, while this might sound like a desirable feature at a first glance, it has some serious implications.
+   To begin with, a large number of configuration parameters also means higher complexity, which makes it harder to predict the system behaviour under unexpected conditions.
+   We have encoutered inumerous unexpected behaviour that were later linked to a certain unexpected bahaviour cause by a default setting.
+
+.. _internal benchmarks: https://tstn-033.lsst.io/#performance
+
+In addition to the features encounted in DDS, it is worth mentioing that it was also already in use by other projects under the NOAO/CTIO umbrella, as is the case of SOAR and the 4m Blanco telescopes on Cerro Pachon and Tololo respectively (see, for instance, the `4M TCSAPP Interfaces Quick Reference`_). 
+
+.. _4M TCSAPP Interfaces Quick Reference: https://www.soartelescope.org/DocDB/0007/000711/001/4M%20TCSAPP%20Environment%20and%20Interfaces%20Quick%20Reference.pdf
+
+The combined in-house expertise and powerfull set of features, made DDS a perfect middleware technology  candidate for the Vera Rubin Observatory at the time.
+It is, therefore, no surprise that it was selected.
+
+Nevertheless, it is worth mentioning that the software engineers at the time did anticipated the potential for future updates.
+This led to the development of abstraction levels to isolate the middleware technology from the higher level system components, which is the idea behind SAL.
+
+The initial version of SAL used the `RTI-Connext`_  implementation of DDS.
+Nevertheless, the parent component (RTI) does not provide a public license for their software.
+This alone adds some overhead due to the distributed (and mostly public) nature of the Rubin Observatory development efforts.
+
+At the time, some preliminary benchmarks had shown that the ADLink-OpenSpliceDDS alternative implementation provided some considerable improvements over RTI-Connext.
+Furthermore, ADLink-OpenSpliceDDS provides a public version of their library.
+The public version is one major release behind the licensed edition and doesn't support some important professional features.
+Even though the public version is not suitable for a production environment, it is certainly suitable for day-to-day development and testing, especially since inter-operability is guaranteed by the DDS standards.
+
+Given the advantages of ADLink-OpenSpliceDDS over RTI-Connext implementation, we decided to switch early on in the project.
+The transition required low-level of effort and had no impact on to the higher level software, which is expected for a well desiged API.
+
+.. _RTI-Connext: https://www.rti.com/products
 
 The Present
 ===========
