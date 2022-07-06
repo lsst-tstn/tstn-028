@@ -160,7 +160,7 @@ The details of our study are outside the scope of this document, however, we hav
    ADLink-OpenSpliceDDS is one of many implementations of the DDS standard.
    There are, in fact, a breadth of alternative solutions available, both public and private.
 
-   Notably, RTI-Connext, which was initially used in SAL is still viable option worth exploring.
+   Notably, RTI-Connext, which was initially used in SAL is still a viable option worth exploring.
    We scheduled a meeting with an engineer and a commercial representative from RTI to discuss the several questions we had with their system, both technical and licensing.
    Unfortunately, not much have changed since we replaced RTI-Connext with ADLink-OpenSpliceDDS, and the issues we had in the past were still relevant.
    It is also worth noting that their Python support is still a concern (see furthermore).
