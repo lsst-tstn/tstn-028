@@ -148,9 +148,12 @@ Furthermore, in their announcement, they also make it clear that users of the li
 Altogether this situation is extremely worrisome, especially as it suggest ADLink-OpenSpliceDDS might be heading towars its end-of-life support, exposing potential issues fullfiling a couple requirements.
 More specifically, requirements OCS-REQ-0006 and OCS-REQ-0022 :cite:`LSE-62`, which concerns the expected lifetime of the project (e.g. the 10 years survey operations).
 
-Anticipating the need to replace OpenSpliceDDS by some other middleware technology, our team has been studying possible alternatives.
+The Future
+==========
+
+Anticipating the need to replace OpenSpliceDDS by some other middleware technology in the future, our team has been studying possible alternatives.
 We focused most of our efforts in protocols that support the so-called publish-subscribe model, which is the one used by DDS, but we also explored other alternatives as well.
-The details of our study are outside the scope of this document however, we have cathegorized our findings as follows:
+The details of our study are outside the scope of this document, however, we have cathegorized our findings as follows:
 
 -  Alternative DDS implementations.
 
@@ -224,16 +227,11 @@ Nevertheless, it is unclear those benchmarks would be applied to our systems con
 
 We then proceded to perform benchmarks with the intention to evaluate Kafka's performance considering our system architecture.
 The results, which are detailed in :tstn:`033`, are encouraging.
-In summray, we obtain similar latency levels for Kafka and DDS.
+In summary, we obtain similar latency levels for both Kafka and DDS.
 In terms of throughput, DDS is considerably better than Kafka for smaller messages, though we obtain similar values for larger messages.
 
 Overall, our detailed study shows that Kafka would be a viable option for replacing DDS as the middleware technology in our system.
-For a full technical report we refer the reader to the technote.
-
-The Future
-==========
-
-TBD
+For the full technical report see :tstn:`033`.
 
 Summary
 =======
