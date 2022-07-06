@@ -18,7 +18,7 @@ As software and hardware systems became more and more complex, it become impract
 With that, software evolved from *monolith* applications, where a single program executes in a single process or node, to *distributed* applications, where the system is divided into a number of smaller applications; each running on their own process or node.
 For these applications to work together coherently they must be able to comunicate with each other, thus giving origin to middleware technologies.
 
-How a *distributed systems* is broken down into smaller pieces is heavily dependent on the problem.
+How a *distributed system* is broken down into smaller pieces is heavily dependent uppon the problem.
 Some systems are only broken down into a small number of components each still in charge of large contexts, others are broken down into several small applications that are in charge only of small simple tasks.
 The later has gained substantial popularity recently and is commonly referred to as *microservices*.
 These systems are behind many of popular large services in use today like Google and Amazon. 
