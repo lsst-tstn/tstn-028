@@ -124,26 +124,29 @@ The Present
 
 At the present state of the project, we have been routinely deploying and testing a stable system comprised of the majority of the components that are part of the Rubin-OCS at the summit (e.g. production environment) and the Tucson Test Stand.
 
-Achieving this stage of the project was not without its challenges related to DDS.
+Achieving this stage of the project was not without its challenges related to DDS and, more specifically, with the ADLink-OpenSpliceDDS implementation.
 In fact, it took our team a good part of a year to be able to obtain a stable system.
-Our findings are summarized in :tstn:`023`.
+Most of our findings are summarized in :tstn:`023`.
 
 Nevertheless, even after all these efforts we still encounter DDS-related issues.
 As we mentioned above, some of them are a result of the choice of configuration settings, which are quite extensive in DDS.
 Others are related to network outages (momentarily or not), and/or fluctuations in the network traffic and how they are handled by the ADLink-OpenSpliceDDS library.
 
-A more serious and worrisome cathegory of issues are related to software errors in the ADLink-OpenSpliceDDS software stack.
-For those issues that we are able to track down, we routinely open cases with ADLink.
-However, their responses to some of the issues we encounter are lacking.
+A more serious and worrisome cathegory of issues are related to errors encountered in the ADLink-OpenSpliceDDS software stack.
+For example, we have encountered crashes on the daemon used to handle the DDS traffic, which requires restarting the components running on that particular node.
+We have also encountered issues with the daemon that prevent us from using a more robust configuration, that would be more resilient to network outages.
+For those issues that we are able to track down, we routinely open cases with ADLink, however, their responses to some of the issues we encounter are akin to what we expect given the premium required for a professional edition.
 
-Furthermore, ADLink has recently `announced`_ that they would no longer support the public version of OpenSpliceDDS.
-In their announcement, they suggest that users of the library should migrate to the new and upcomming `Cyclone DDS`_.
+Furthermore, ADLink has recently `announced`_ that the public version of OpenSpliceDDS is no longer going to be supported.
+Their previous policy was to keep the public library one major version behind the licensed edition.
+They had also granted us permission to publicly use the licensed Python bindings with the public library, which was required due to otherwise unfixable issues with the public edition.
+Furthermore, in their announcement, they also make it clear that users of the library should migrate to the new and upcomming `Cyclone DDS`_.
 
 .. _announced: https://github.com/ADLINK-IST/opensplice#announcement
 .. _Cyclone DDS: https://projects.eclipse.org/projects/iot.cyclonedds
 
-Although, they are still officially supporting the licensed version of OpenSpliceDDS, this move is worrisome as it suggest ADLink-OpenSpliceDDS might be trailing towars its end-of-life.
-This exposes our project to serious risk, especially considering the expected initial lifetime of the project (the 10 years of operations of the survey).
+Altogether this situation is extremely worrisome, especially as it suggest ADLink-OpenSpliceDDS might be heading towars its end-of-life support, exposing potential issues fullfiling a couple requirements.
+More specifically, requirements OCS-REQ-0006 and OCS-REQ-0022 :cite:`LSE-62`, which concerns the expected lifetime of the project (e.g. the 10 years survey operations).
 
 Anticipating the need to replace OpenSpliceDDS by some other middleware technology, our team has been studying possible alternatives.
 We focused most of our efforts in protocols that support the so-called publish-subscribe model, which is the one used by DDS, but we also explored other alternatives as well.
