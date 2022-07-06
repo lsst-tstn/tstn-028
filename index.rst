@@ -236,7 +236,24 @@ For the full technical report see :tstn:`033`.
 Summary
 =======
 
-TBD
+After considerable effort fine tunning the DDS middleware configuration, we were finally able to obtain a stable system, that is capable of operating at large scale with low middleware-related failure rate.
+At the current advanced state of the project, which is approaching its final construction stages, one might be tempted to accept this part of the project as concluded.
+
+Nevertheless, as we demonstrated, there are a number of issues hidding underneath that may pose significant problems in the future, or even be seen as violating system requirements.
+
+Overall our experience with DDS has been, to say the least, underwhelming.
+Even thought the technology is capable of achieving impressive throughputs and latency, in reality, it proved to be extremely cumbersome and hard to manage and debug on large scale systems.
+On top of if all we also face a potentially end-of-life cycle of the adopted library, which makes the problem considerably worse.
+
+After extensive exploring different alternatives to the problem we propose a potential long term solution to the problem, namely, replace DDS by the already in-use Kafka.
+Our benchmarks shows that Kafka is able to fullfill our system throughput and latency requirements.
+We also shown that transitioning to Kafka would require minimum effort and minimum code refactor.
+
+We also note that there are major advantages of transitioning to Kafka before the end of construction.
+To begin with, we take advantage of a "standing army", as developers are actively engaged with the system and motivated.
+Furthermore, it also gives us the opportunity to perform the transition in a time when uptime pressure is not as large as it will become once commissioning of the main telescope commences.
+Given our development cycle and the current state of the system we expect to be able to fully transition to Kafka in a 1 to 2 deployment cycles (1-3 months approximately), with no impact to the summit and minimum to no downtime on the Tucson Test Stand.
+
 
 .. rubric:: References
 
