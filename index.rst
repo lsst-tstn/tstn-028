@@ -3,36 +3,36 @@
 Abstract
 ========
 
-This technote gathers information about the history, current state and contemplates future evolutions of the Vera Rubin Observatory Control System (Rubin-OCS) Middleware.
+This tech note gathers information about the history, current state and contemplates future evolution of the Vera Rubin Observatory Control System (Rubin-OCS) Middleware.
 The middleware is the backbone of the Rubin-OCS.
 The highly distributed nature of the Rubin-OCS places tight constraints in terms of latency, availability and reliability for the middleware.
 Here we gather information to answer some common questions regarding technology choices, describe some of the in-house work done to obtain a stable system and document some of the concerns with the current state of the system, potential impacts for near-future/commissioning and future/operations.
-We also cover some of the work we have been doing to investigate alternative technologies and suggest some potential roadmaps for the future of the system.
+We also cover some of the work we have been doing to investigate alternative technologies and suggest some potential road maps for the future of the system.
 
 Introduction
 ============
 
-"Middleware" is the term used to describe software applications used for communication in sofware systems.
-These technologies became popular with the advent of *distributed systems*, wich come as a solution to the problem of parallel computation.
+"Middleware" is the term used to describe software applications used for communication in software systems.
+These technologies became popular with the advent of *distributed systems*, which come as a solution to the problem of parallel computation.
 As software and hardware systems became more and more complex, it become impractical to develop and execute them in a single process and, eventually, a single node.
 With that, software evolved from *monolith* applications, where a single program executes in a single process or node, to *distributed* applications, where the system is divided into a number of smaller applications; each running on their own process or node.
-For these applications to work together coherently they must be able to comunicate with each other, thus giving origin to middleware technologies.
+For these applications to work together coherently they must be able to communicate with each other, thus giving origin to middleware technologies.
 
-How a *distributed system* is broken down into smaller pieces is heavily dependent uppon the problem.
+How a *distributed system* is broken down into smaller pieces is heavily dependent upon the problem.
 Some systems are only broken down into a small number of components each still in charge of large contexts, others are broken down into several small applications that are in charge only of small simple tasks.
 The later has gained substantial popularity recently and is commonly referred to as *microservices*.
 These systems are behind many of popular large services in use today like Google and Amazon. 
 
 The architecture of *distributed systems* can take many shapes and forms.
-For instance, some systems are designed to mimick or emulate *monolith* applications.
+For instance, some systems are designed to emulate *monolithic* applications.
 The application is composed of a number of smaller applications but there is a hierarchical organization, with components at the top, in charge of communicating and operating components at the bottom.
 The advantage of these systems is that they are easier to understand and to maintain.
-Since each component is isolated from the rest of the system, and only communicates with a components on the top and bottom of the hierarchical chain, adding new components is realatively easy and have minimal impact in the system.
-The disadvantage is that the system is more vulnarable to outages, if a component on the top of the hierarchical chain becomes unavailable those components at the bottom also become unavailable.
+Since each component is isolated from the rest of the system, and only communicates with a components on the top and bottom of the hierarchical chain, adding new components is relatively easy and have minimal impact in the system.
+The disadvantage is that the system is more vulnerable to outages, if a component on the top of the hierarchical chain becomes unavailable those components at the bottom also become unavailable.
 
 A popular alternative to this architecture are *event-driven reactive systems*.
 In these systems each component is designed as an independent entity that reacts to input data, be it from other components or external data services.
-Since these system are desiged with separation of concerns in mind, each component must be able to act independently, *reactive systems* are usually extremely resilient.
+Since these system are designed with separation of concerns in mind, each component must be able to act independently, *reactive systems* are usually extremely resilient.
 If one component becomes unavailable, the others are expected to continue to operate, taking precautious to deal with the missing agent.
 At the same time, it can become quite burdensome to update and grow these systems as their complexity increases exponentially with the number of different components.
 
@@ -50,21 +50,21 @@ The Past
 
 Probably the most important thing for us to consider when speaking about the past, is trying to understand why DDS was selection in the first place and then why the ADLink-OpenSpliceDDS implementation was adopted.
 
-To put it in perspective, the firt commit to the current `SAL code repository`_ dates back to August 2014, some 8 years from the time of this writting and almost a whole year before the construction `first stone`_.
-For comparisom, the Apache Kafka message system first stable release dates back to January 2011, whereas the `DDS version 1.0 standard` dates back to December 2004.
+To put it in perspective, the first commit to the current `SAL code repository`_ dates back to August 2014, some 8 years from the time of this writing and almost a whole year before the construction `first stone`_.
+For comparison, the Apache Kafka message system first stable release dates back to January 2011, whereas the `DDS version 1.0 standard` dates back to December 2004.
 
 .. _SAL code repository: https://github.com/lsst-ts/ts_sal
 .. _first stone: https://www.nsf.gov/news/news_summ.jsp?cntn_id=134805&org=NSF&from=news
 .. _DDS version 1.0 standard: https://www.omg.org/spec/DDS/1.0
 
 At the time when decision was being made about selecting a middleware technology, DDS was a mature standard.
-The technology defines a powerfull real-time message system protocol with high inter-operability between platforms and programming languanges.
+The technology defines a powerful real-time message system protocol with high inter-operability between platforms and programming languages.
 In fact, DDS has most of the important features we recognize as crucial for the Rubin-OCS.
 Some of the most important ones are, for example:
 
 -  Real-time message transfer capabilities.
 
-   DDS is a brokerless messaging system with small overhead.
+   DDS is a broker-less messaging system with small overhead.
    As such, it is capable of high-throughput and low-latency data transfer.
    For example, in our `internal benchmarks`_, DDS reached transfer rates of the order of >16kHz with millisecond latency.
    This is certainly way beyond the requirements of our system, which are mostly constrained by the throughput of M1M3 (REQ?) and the throughput/latency required for tracking (LTS-TCS-PTG-0008 and LTS-TCS-PTG-0001 in :lts:`583` specify lead-times between 50-70ms with standard deviation of 3ms for tracking demands).
@@ -72,11 +72,11 @@ Some of the most important ones are, for example:
 -  Durability service.
 
    In messaging systems, "durability" refer to the capability of a system to store published data and serve it to components that join the system afterwards.
-   This service is crucial for a distributed system like Rubin-OCS as it guarantees that components comming online at any time are able to determine the state of the system by accessing previously published information.
+   This service is crucial for a distributed system like Rubin-OCS as it guarantees that components coming online at any time are able to determine the state of the system by accessing previously published information.
 
    A surprising number of systems do not provide any type of durability service, especially those that are deemed "real-time".
 
-   This mostly boils down from the fact that most real-time capable systems are brokerless (like DDS).
+   This mostly boils down from the fact that most real-time capable systems are broker-less (like DDS).
    Nevertheless, in order to provide a durability service, a system must have some kind of broker, that can store published messages and distribute them when needed.
 
    DDS provides a rather elegant solution to this problem.
@@ -90,16 +90,16 @@ Some of the most important ones are, for example:
 
    DDS has an extremely rich QoS system with several configuration parameters.
    Nevertheless, while this might sound like a desirable feature at a first glance, it has some serious implications.
-   To begin with, a large number of configuration parameters also means higher complexity, which makes it harder to predict the system behaviour under unexpected conditions.
-   We have encoutered inumerous unexpected behaviour that were later linked to a certain unexpected bahaviour cause by a default setting.
+   To begin with, a large number of configuration parameters also means higher complexity, which makes it harder to predict the system behavior under unexpected conditions.
+   We have encountered numerous unexpected behaviors that were later linked to a certain unexpected behavior cause by a default setting.
 
 .. _internal benchmarks: https://tstn-033.lsst.io/#performance
 
-In addition to the features encounted in DDS, it is worth mentioing that it was also already in use by other projects under the NOAO/CTIO umbrella, as is the case of SOAR and the 4m Blanco telescopes on Cerro Pachon and Tololo respectively (see, for instance, the `4M TCSAPP Interfaces Quick Reference`_). 
+In addition to the features encountered in DDS, it is worth mentioning that it was also already in use by other projects under the NOAO/CTIO umbrella, as is the case of SOAR and the 4m Blanco telescopes on Cerro Pachon and Tololo respectively (see, for instance, the `4M TCSAPP Interfaces Quick Reference`_). 
 
 .. _4M TCSAPP Interfaces Quick Reference: https://www.soartelescope.org/DocDB/0007/000711/001/4M%20TCSAPP%20Environment%20and%20Interfaces%20Quick%20Reference.pdf
 
-The combined in-house expertise and powerfull set of features, made DDS a perfect middleware technology  candidate for the Vera Rubin Observatory at the time.
+The combined in-house expertise and powerful set of features, made DDS a perfect middleware technology candidate for the Vera Rubin Observatory at the time.
 It is, therefore, no surprise that it was selected.
 
 Nevertheless, it is worth mentioning that the software engineers at the time did anticipated the potential for future updates.
@@ -115,7 +115,7 @@ The public version is one major release behind the licensed edition and doesn't 
 Even though the public version is not suitable for a production environment, it is certainly suitable for day-to-day development and testing, especially since inter-operability is guaranteed by the DDS standards.
 
 Given the advantages of ADLink-OpenSpliceDDS over RTI-Connext implementation, we decided to switch early on in the project.
-The transition required low-level of effort and had no impact on to the higher level software, which is expected for a well desiged API.
+The transition required low-level of effort and had no impact on to the higher level software, which is expected for a well designed API.
 
 .. _RTI-Connext: https://www.rti.com/products
 
@@ -132,7 +132,7 @@ Nevertheless, even after all these efforts we still encounter DDS-related issues
 As we mentioned above, some of them are a result of the choice of configuration settings, which are quite extensive in DDS.
 Others are related to network outages (momentarily or not), and/or fluctuations in the network traffic and how they are handled by the ADLink-OpenSpliceDDS library.
 
-A more serious and worrisome cathegory of issues are related to errors encountered in the ADLink-OpenSpliceDDS software stack.
+A more serious and worrisome category of issues are related to errors encountered in the ADLink-OpenSpliceDDS software stack.
 For example, we have encountered crashes on the daemon used to handle the DDS traffic, which requires restarting the components running on that particular node.
 We have also encountered issues with the daemon that prevent us from using a more robust configuration, that would be more resilient to network outages.
 For those issues that we are able to track down, we routinely open cases with ADLink, however, their responses to some of the issues we encounter are akin to what we expect given the premium required for a professional edition.
@@ -140,12 +140,12 @@ For those issues that we are able to track down, we routinely open cases with AD
 Furthermore, ADLink has recently `announced`_ that the public version of OpenSpliceDDS is no longer going to be supported.
 Their previous policy was to keep the public library one major version behind the licensed edition.
 They had also granted us permission to publicly use the licensed Python bindings with the public library, which was required due to otherwise unfixable issues with the public edition.
-Furthermore, in their announcement, they also make it clear that users of the library should migrate to the new and upcomming `Cyclone DDS`_.
+Furthermore, in their announcement, they also make it clear that users of the library should migrate to the new and upcoming `Cyclone DDS`_.
 
 .. _announced: https://github.com/ADLINK-IST/opensplice#announcement
 .. _Cyclone DDS: https://projects.eclipse.org/projects/iot.cyclonedds
 
-Altogether this situation is extremely worrisome, especially as it suggest ADLink-OpenSpliceDDS might be heading towars its end-of-life support, exposing potential issues fullfiling a couple requirements.
+Altogether this situation is extremely worrisome, especially as it suggest ADLink-OpenSpliceDDS might be heading towards its end-of-life support, exposing potential issues fulfilling a couple requirements.
 More specifically, requirements OCS-REQ-0006 and OCS-REQ-0022 :cite:`LSE-62`, which concerns the expected lifetime of the project (e.g. the 10 years survey operations).
 
 The Future
@@ -153,7 +153,7 @@ The Future
 
 Anticipating the need to replace OpenSpliceDDS by some other middleware technology in the future, our team has been studying possible alternatives.
 We focused most of our efforts in protocols that support the so-called publish-subscribe model, which is the one used by DDS, but we also explored other alternatives as well.
-The details of our study are outside the scope of this document, however, we have cathegorized our findings as follows:
+The details of our study are outside the scope of this document, however, we have categorized our findings as follows:
 
 -  Alternative DDS implementations.
 
@@ -167,10 +167,10 @@ The details of our study are outside the scope of this document, however, we hav
 
 -  Lack of durability service.
 
-   As we mentioned previously, a good fraction of message passing systems lacks support for durability service, especially those that are deemed "real-time" systems which, in general, opt to a brokerless architecture.
+   As we mentioned previously, a good fraction of message passing systems lacks support for durability service, especially those that are deemed "real-time" systems which, in general, opt to a broker-less architecture.
 
-   Some examples of message systems that falls in this cathegory are ZeroMQ and nanomessage.
-   Both these solutions are advertised as brokerless with "real-time" capabilities.
+   Some examples of message systems that falls in this category are ZeroMQ and nanomessage.
+   Both these solutions are advertised as broker-less with "real-time" capabilities.
    ZeroMQ is known by its simplicity and easy to use whereas nanomessage was adopted as the message system for GMT.
 
 -  Python libraries and support for asyncio.
@@ -196,7 +196,7 @@ The details of our study are outside the scope of this document, however, we hav
 
    There are some existing frameworks both in industry and adopted by different observatories that, in principle, could provide a viable alternative to DDS as a middleware though they implement different architectures.
 
-   Probably the best example of frameworks on this cathegory is `TANGO`_ which, in turn, is desiged on top of the `CORBA`_ middleware.
+   Probably the best example of frameworks on this category is `TANGO`_ which, in turn, is designed on top of the `CORBA`_ middleware.
 
    .. note:
 
@@ -204,7 +204,7 @@ The details of our study are outside the scope of this document, however, we hav
 
    Contrary to DDS, which defines a data-driven (publish-subscribe) architecture, CORBA implements an object-oriented model which is more suitable for a hierarchical system architecture.
 
-   Although it would be, in principle, possible to use CORBA in a data-driven scenario, it is not what it was desiged for, which makes it hard to anticipate pitfalls we could encounter in the adoption process.
+   Although it would be, in principle, possible to use CORBA in a data-driven scenario, it is not what it was designed for, which makes it hard to anticipate pitfalls we could encounter in the adoption process.
 
    Therefore, even though we explored some of these alternative architectures systems, and some of them shows some promise, it seems like a larger risk than to find a suitable publish-subscribe alternative to DDS.
 
@@ -213,19 +213,19 @@ The details of our study are outside the scope of this document, however, we hav
 .. _OMG: https://www.omg.org
 .. _IDL: https://www.omg.org/spec/IDL/4.2/About-IDL/
 
-After extensively researching alternatives to ADLink-OpenSpliceDDS (and DDS) we have finally converged into a best alternaltive; `Kafka`_.
+After extensively researching alternatives to ADLink-OpenSpliceDDS (and DDS) we have finally converged into a best alternative; `Kafka`_.
 
 `Kafka`_ is an open source event streaming platform that is broadly used in industry.
-In fact, it is already an intergral part of the Rubin-OCS, as it is used in the EFD to transport the data from DDS to influxDB (:sqr:`034` :cite:`SQR-034`).
+In fact, it is already an integral part of the Rubin-OCS, as it is used in the EFD to transport the data from DDS to influxDB (:sqr:`034` :cite:`SQR-034`).
 
 .. _Kafka: https://kafka.apache.org
 
 The fact that we are already using Kafka in the system reliably to ingest data into the EFD gives us confidence that it is, at the very least, able to handle the overall data throughput.
 Our main concern is than to verify that Kafka can handle the latency requirements of our system.
-In principle, Kafka is advertised as a "real-time" system and inumerous benchmarks exists online showing it can reach latencies at the millisecond regime.
-Nevertheless, it is unclear those benchmarks would be applied to our systems constrains, giving the tipical message size, network architecture and other relevant factors.
+In principle, Kafka is advertised as a "real-time" system and numerous benchmarks exists online showing it can reach latencies at the millisecond regime.
+Nevertheless, it is unclear those benchmarks would be applied to our systems constrains, giving the typical message size, network architecture and other relevant factors.
 
-We then proceded to perform benchmarks with the intention to evaluate Kafka's performance considering our system architecture.
+We then proceeded to perform benchmarks with the intention to evaluate Kafka's performance considering our system architecture.
 The results, which are detailed in :tstn:`033`, are encouraging.
 In summary, we obtain similar latency levels for both Kafka and DDS.
 In terms of throughput, DDS is considerably better than Kafka for smaller messages, though we obtain similar values for larger messages.
@@ -239,14 +239,14 @@ Summary
 After considerable effort fine tunning the DDS middleware configuration, we were finally able to obtain a stable system, that is capable of operating at large scale with low middleware-related failure rate.
 At the current advanced state of the project, which is approaching its final construction stages, one might be tempted to accept this part of the project as concluded.
 
-Nevertheless, as we demonstrated, there are a number of issues hidding underneath that may pose significant problems in the future, or even be seen as violating system requirements.
+Nevertheless, as we demonstrated, there are a number of issues hiding underneath that may pose significant problems in the future, or even be seen as violating system requirements.
 
 Overall our experience with DDS has been, to say the least, underwhelming.
-Even thought the technology is capable of achieving impressive throughputs and latency, in reality, it proved to be extremely cumbersome and hard to manage and debug on large scale systems.
+Even thought the technology is capable of achieving impressive throughput and latency, in reality, it proved to be extremely cumbersome and hard to manage and debug on large scale systems.
 On top of if all we also face a potentially end-of-life cycle of the adopted library, which makes the problem considerably worse.
 
 After extensive exploring different alternatives to the problem we propose a potential long term solution to the problem, namely, replace DDS by the already in-use Kafka.
-Our benchmarks shows that Kafka is able to fullfill our system throughput and latency requirements.
+Our benchmarks shows that Kafka is able to fulfill our system throughput and latency requirements.
 We also shown that transitioning to Kafka would require minimum effort and minimum code refactor.
 
 We also note that there are major advantages of transitioning to Kafka before the end of construction.
