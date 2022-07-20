@@ -241,7 +241,7 @@ For the full technical report see :tstn:`033`.
 Summary
 =======
 
-After considerable effort fine tunning the DDS middleware configuration, we were finally able to obtain a stable system, that is capable of operating at large scale with low middleware-related failure rate.
+After considerable effort fine tuning the DDS middleware configuration, we were finally able to obtain a stable system, that is capable of operating at large scale with low middleware-related failure rate.
 At the current advanced state of the project, which is approaching its final construction stages, one might be tempted to accept this part of the project as concluded.
 
 Nevertheless, as we demonstrated, there are a number of issues hiding underneath that may pose significant problems in the future, or even be seen as violating system requirements.
