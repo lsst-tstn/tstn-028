@@ -68,7 +68,13 @@ In fact, DDS has most of the important features we recognize as crucial for the 
    DDS is a broker-less messaging system with small overhead.
    As such, it is capable of high-throughput and low-latency data transfer.
    For example, in our `internal benchmarks`_, DDS reached transfer rates of the order of >16kHz with millisecond latency.
-   This is certainly way beyond the requirements of our system, which are mostly constrained by the throughput of M1M3 (REQ?) and the throughput/latency required for tracking (LTS-TCS-PTG-0008 and LTS-TCS-PTG-0001 in :lts:`583` specify lead-times between 50-70ms with standard deviation of 3ms for tracking demands).
+   This is certainly way beyond the requirements of our system, which are mostly constrained by the throughput of M1M3 (REQ?) and the throughput/latency required for tracking.
+
+   It is worth noting that the Rubin-OCS requirements are not clear with respect to latency constrains.
+   Requirements LTS-TCS-PTG-0008 and LTS-TCS-PTG-0001 in :lts:`583` only specify lead-times between 50-70ms with standard deviation of 3ms for tracking demands.
+   At best, these requirements can only be used to determine upper limits on latency, e.g. demands must be delivered with sufficient time to account for the lead-times.
+
+   If is safe to say that delivering the demands 3/4 ahead of the lead-time should be sufficient time for the mount to process them, which means latency around 10-20ms.
 
 -  Durability service.
 
@@ -193,7 +199,8 @@ The details of our study are outside the scope of this document, however, we hav
    Although the definition of what a real-time message passing system is not well defined, it is generally accepted that they must have latency on the range of 6-20 milliseconds or better :cite:`DBLP:books/daglib/0007303`.
    The vast majority of message passing systems claim to be capable of real-time data transport.
    Nevertheless, because the definition of real-time is somewhat loose, those claims can be challenged and most importantly, need to be put into context for a particular system and verified.
-   As mentioned previously, the tracking requirements on Rubin-OCS demands latency of around 3ms.
+   As mentioned previously, we should be able to meet the tracking requirements with latency around 10-20ms.
+
    Any system we choose must first be capable of achieving these levels of latency under the conditions imposed by our system, regardless of their claims.
 
 -  Alternative architectures.
