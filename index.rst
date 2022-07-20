@@ -15,7 +15,7 @@ Introduction
 "Middleware" is the term used to describe software applications used for communication in software systems.
 These technologies became popular with the advent of *distributed systems*, which come as a solution to the problem of parallel computation.
 As software and hardware systems became more complex, it becomes impractical to develop and execute them in a single process and, eventually, a single node.
-With that, software evolved from *monolith* applications, where a single program executes in a single process or node, to *distributed* applications, where the system is divided into a number of smaller applications; each running on their own process or node.
+With that, software evolved from *monolithic* applications, where a single program executes in a single process or node, to *distributed* applications, where the system is divided into a number of smaller applications; each running on their own process or node.
 For these applications to work together coherently they must be able to communicate with each other, thus giving origin to middleware technologies.
 
 How a *distributed system* is broken down into smaller pieces is heavily dependent upon the problem.
@@ -30,15 +30,17 @@ The advantage of these systems is that they are easier to understand and to main
 Since each component is isolated from the rest of the system, and only communicates with a components on the top and bottom of the hierarchical chain, adding new components is relatively easy and have minimal impact in the system.
 The disadvantage is that the system is more vulnerable to outages, if a component on the top of the hierarchical chain becomes unavailable those components at the bottom also become unavailable.
 
-A popular alternative to this architecture are *event-driven reactive systems*.
+More modern *distributed systems* have been favoring less hierarchical approaches, following the principles of *`reactive systems`_*.
 In these systems each component is designed as an independent entity that reacts to input data, be it from other components or external data services.
-Since these system are designed with separation of concerns in mind, each component must be able to act independently, *reactive systems* are usually extremely resilient.
+Since these systems are designed with separation of concerns in mind (e.g. each component must be able to act independently), *reactive systems* are usually extremely resilient.
 If one component becomes unavailable, the others are expected to continue to operate, taking precautious to deal with the missing agent.
 At the same time, it can become quite burdensome to update and grow these systems as their complexity increases exponentially with the number of different components.
 
+.. _reactive systems: https://www.reactivemanifesto.org
+
 In any case, the middleware plays a crucial part in any kind of *distributed system*, acting as the glue that binds the system together.
 
-The Vera Rubin Observatory Control System (Rubin-OCS) is designed following an *event-driven*, *reactive*, *distributed* architecture.
+The Vera Rubin Observatory Control System (Rubin-OCS) is designed following the principles of a *distributed*, *`reactive <reactive systems>`_* architecture.
 The system is composed of a number of independent components that work together to execute cohesive operations.
 
 The middleware is encapsulated with a layer of abstraction known as the Service Abstraction Layer (SAL), which uses the ADLink-OpenSpliceDDS implementation of the Data Distribution Service (DDS) message passing system.
@@ -87,7 +89,7 @@ In fact, DDS has most of the important features we recognize as crucial for the 
 
 -  The Quality of Service (QoS) dictates how messages are delivered under different network scenarios.
 
-   DDS has an extremely rich QoS system with several configuration parameters.
+   DDS has an extremely rich QoS system with many configuration parameters.
    Nevertheless, while this might sound like a desirable feature at a first glance, it has some serious implications.
    To begin with, a large number of configuration parameters also means higher complexity, which makes it harder to predict the system behavior under unexpected conditions.
    We have encountered many problems that were traced to unexpected behavior caused by QoS settings.
@@ -142,7 +144,7 @@ A more serious and worrisome category of issues are related to errors encountere
 -  We have encountered crashes on the daemon used to handle the DDS traffic, which requires restarting all components running on that particular node.
 -  There are issues with the daemon that prevent us from using a more robust configuration, that would be more resilient to network outages.
 
-Overall, our experience with ADLink-OpenSpliceDDS software quality are akin to what one would expect given the premium required for a professional edition.
+In general, we believe the project is not receiving an appropriate return of investment with ADLink-OpenSpliceDDS.
 
 Furthermore, ADLink has recently `announced`_ that the public version of OpenSpliceDDS is no longer going to be supported.
 Their previous policy was to keep the community/public library one major version behind the licensed edition.
