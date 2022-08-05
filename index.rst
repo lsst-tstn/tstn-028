@@ -262,8 +262,8 @@ Our benchmarks shows that Kafka is able to fulfill our system throughput and lat
 We also shown that transitioning to Kafka would require minimum effort and minimum code refactoring.
 
 We also note that there are major advantages of transitioning to Kafka before the end of construction.
-To begin with, we take advantage of a "marching army", as developers are actively engaged with the system and motivated.
-Furthermore, it also gives us the opportunity to perform the transition in a time when uptime pressure is not as large as it will become once commissioning of the main telescope commences.
+For instance, developers are actively engaged with the system and motivated.
+Furthermore, it also gives us the opportunity to perform the transition while system uptime pressure is not as large as it will become once commissioning of the main telescope commences.
 
 Given our development cycle and the current state of the system we expect to be able to fully transition to Kafka in a 1 to 2 deployment cycles (1-3 months approximately), with no impact to the summit and minimum to no downtime on the Tucson Test Stand.
 This estimate is based on the assumption that we have finished porting all our code-base to support Kafka, including the remaining salobj-based services that were not ported as part of :tstn:`033` efforts as well as providing a Kafka-based version of SAL to drive the C++, LabView and Java applications.
