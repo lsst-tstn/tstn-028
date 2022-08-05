@@ -3,11 +3,10 @@
 Abstract
 ========
 
-This tech note gathers information about the history, current state and contemplates future evolution of the Vera Rubin Observatory Control System (Rubin-OCS) Middleware.
-The middleware is the backbone of the Rubin-OCS.
+After researching alternatives to ADLink-OpenSpliceDDS (and DDS) we conclude that `Kafka`_ provides the best alternative for the Vera Rubin Observatory Control System (Rubin-OCS) Middleware.
+The middleware is the backbone of the Rubin-OCS, and is fundamental for stable operation of the observatory.
 The highly distributed nature of the Rubin-OCS places tight constraints in terms of latency, availability and reliability for the middleware.
-Here we gather information to answer some common questions regarding technology choices, describe some of the in-house work done to obtain a stable system and document some of the concerns with the current state of the system, potential impacts for near-future/commissioning and future/operations.
-We also cover some of the work we have been doing to investigate alternative technologies and suggest some potential road maps for the future of the system.
+Here we gather information to answer common questions regarding technology choices, describe the in-house work done to obtain a stable system, highlight our concerns with the current Data Distribution Service (DDS) technology, and its potential impact for near-future/commissioning and future/operations.
 
 Introduction
 ============
