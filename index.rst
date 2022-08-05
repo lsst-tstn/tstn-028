@@ -90,12 +90,12 @@ In fact, DDS has most of the important features we recognize as crucial for the 
    One of those systems is elected as the "master" node, which will be in charge of actually distributing the data.
    If the master node falls over, some other node is elected to take its place.
 
-   Nevertheless, as we have demonstrated in our efforts to stabilize the system (:tstn:`023`), this can have a huge impact in the system performance and adds considerable complexity in configuring the system.
+   As we have demonstrated in our efforts to stabilize the system (:tstn:`023`), this can have a huge impact in the system performance and adds considerable complexity in configuring the system.
 
 -  The Quality of Service (QoS) dictates how messages are delivered under different network scenarios.
 
    DDS has an extremely rich QoS system with many configuration parameters.
-   Nevertheless, while this might sound like a desirable feature at a first glance, it has some serious implications.
+   While this might sound like a desirable feature at a first glance, it has some serious implications.
    To begin with, a large number of configuration parameters also means higher complexity, which makes it harder to predict the system behavior under unexpected conditions.
    We have encountered many problems that were traced to unexpected behavior caused by QoS settings.
 
@@ -108,7 +108,7 @@ In addition to the features in DDS, it is worth mentioning that it was also alre
 The combined in-house expertise and powerful set of features, made DDS a perfect middleware technology candidate for the Vera Rubin Observatory at the time.
 It is, therefore, no surprise that it was selected.
 
-Nevertheless, it is worth mentioning that the software engineers at the time did anticipate the potential for future updates.
+It is worth mentioning that the software engineers at the time did anticipate the potential for future updates.
 This led to the development of abstraction levels to isolate the middleware technology from the higher level system components, which is the idea behind SAL.
 
 The initial version of SAL used the `RTI-Connext`_  implementation of DDS.
@@ -135,7 +135,7 @@ Achieving this stage of the project was not without its challenges related to DD
 In fact, it took our team a good part of a year to be able to obtain a stable system.
 Most of our findings are summarized in :tstn:`023`.
 
-Nevertheless, even after all these efforts we still encounter DDS-related issues.
+However, even after all these efforts we still encounter DDS-related issues.
 As we mentioned above, some of them are a result of the choice of configuration settings, which are quite extensive in DDS.
 Others are related to network outages (momentarily or not), and/or fluctuations in the network traffic and how they are handled by the ADLink-OpenSpliceDDS library.
 
@@ -189,7 +189,7 @@ The details of our study are outside the scope of this document, however, we hav
 -  Python libraries and support for asyncio.
 
    With Python being a popular language, one would expect to find broad support for the majority of the message passing systems.
-   Nevertheless, the reality of it is that most systems provide Python support through non-native C bindings.
+   The reality though, is that most systems provide Python support only through non-native C bindings.
    This is, for instance, the case with the ADLink-OpenSpliceDDS we currently use.
    It is also extremely rare to find message systems with native support for Python asyncio, which is heavily used in salobj.
 
@@ -197,8 +197,9 @@ The details of our study are outside the scope of this document, however, we hav
 
    Although the definition of what a real-time message passing system is not well defined, it is generally accepted that they must have latency on the range of 6-20 milliseconds or better :cite:`DBLP:books/daglib/0007303`.
    The vast majority of message passing systems claim to be capable of real-time data transport.
-   Nevertheless, because the definition of real-time is somewhat loose, those claims can be challenged and most importantly, need to be put into context for a particular system and verified.
-   As mentioned previously, we should be able to meet the tracking requirements with latency around 10-20ms.
+   However, because the definition of real-time is somewhat loose, it is not straightforward to verify or challenge those claims.
+   Ultimately, these need to be put into context for a particular system and verified.
+   For our particular case, we should be able to meet the tracking requirements with latency around 10-20ms.
 
    Any system we choose must first be capable of achieving these levels of latency under the conditions imposed by our system, regardless of their claims.
 
@@ -250,7 +251,7 @@ Summary
 After considerable effort fine tuning the DDS middleware configuration, we were finally able to obtain a stable system, that is capable of operating at large scale with low middleware-related failure rate.
 At the current advanced state of the project, which is approaching its final construction stages, one might be tempted to accept this part of the project as concluded.
 
-Nevertheless, as we demonstrated, there are a number of issues hiding underneath that may pose significant problems in the future, or even be seen as violating system requirements.
+As we demonstrated, there are a number of issues hiding underneath that may pose significant problems in the future, or even be seen as violating system requirements.
 
 Overall our experience with DDS has been frustrating and disappointing.
 Even though the technology is capable of achieving impressive throughput and latency, in reality, it proved to be extremely cumbersome and hard to manage and debug on large scale systems.
