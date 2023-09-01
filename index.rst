@@ -20,7 +20,7 @@ For these applications to work together coherently they must be able to communic
 How a *distributed system* is broken down into smaller pieces is heavily dependent upon the problem.
 Some systems are only broken down into a small number of components each still in charge of large contexts, others are broken down into many small applications that are in charge only of small simple tasks.
 The latter has gained substantial popularity recently and is commonly referred to as *microservices*.
-These systems are behind many of popular large services in use today like Google and Amazon. 
+These systems are behind many of popular large services in use today like Google and Amazon.
 
 The architecture of *distributed systems* can take many shapes and forms.
 For instance, some systems are designed to emulate *monolithic* applications.
@@ -101,7 +101,7 @@ In fact, DDS has most of the important features we recognize as crucial for the 
 
 .. _internal benchmarks: https://tstn-033.lsst.io/#performance
 
-In addition to the features in DDS, it is worth mentioning that it was also already in use by other projects under the NOAO/CTIO umbrella, including the SOAR and the 4m Blanco telescopes on Cerro Pachon and Tololo respectively (see, for instance, the `4M TCSAPP Interfaces Quick Reference`_). 
+In addition to the features in DDS, it is worth mentioning that it was also already in use by other projects under the NOAO/CTIO umbrella, including the SOAR and the 4m Blanco telescopes on Cerro Pachon and Tololo respectively (see, for instance, the `4M TCSAPP Interfaces Quick Reference`_).
 
 .. _4M TCSAPP Interfaces Quick Reference: https://www.soartelescope.org/DocDB/0007/000711/001/4M%20TCSAPP%20Environment%20and%20Interfaces%20Quick%20Reference.pdf
 
@@ -115,7 +115,7 @@ The initial version of SAL used the `RTI-Connext`_  implementation of DDS.
 Unfortunately, the parent component (RTI) does not provide a public license for their software.
 This alone adds substantial overhead to the development and deployment cycle, especially given the distributed (and mostly public) nature of the Rubin Observatory efforts.
 In addition to the cost of purchasing licenses, we are also required to distribute the licensed code to team member and external collaborators/vendors.
-Furthermore, we must also make sure collaborators are not publicising the software/license, which could have potential legal repercussions to the project. 
+Furthermore, we must also make sure collaborators are not publicising the software/license, which could have potential legal repercussions to the project.
 
 Alternatively, the ADLink-OpenSpliceDDS implementation shows comparable benchmarks to that of RTI-Connext, with the benefit of providing a public version of their library.
 The public version is (usually) one major release behind the professional edition and excludes some important features we end up requiring for the production environment.
@@ -244,6 +244,97 @@ It is also worth mentioning again that the overall throughput we achieve with Ka
 
 Overall, our detailed study shows that Kafka would be a viable option for replacing DDS as the middleware technology in our system.
 For the full technical report see :tstn:`033`.
+
+Transition Plan
+---------------
+
+The following transition plan establishes some important milestone with description of the expected activities.
+We are not attaching dates to any of the following items to allow the schedule to float as needed, given the priorities of the project.
+
+#. Support to Python/salobj CSCs.
+
+   The first state of the transition plan is to add support to the Python/salobj CSCs.
+   This stage is mostly completed as salobj was converted to Kafka and used to provide benchmarks for our initial evaluation of the platform.
+
+   Since salobj was ported to Kafka as a "drop-in" implementation, we expect that a small number of developers in the team will start using the kafka version of salobj for development at this stage.
+
+#. Support to SAL.
+
+   The next step in the process is porting SAL to kafka.
+   This will add support for the components written in C++ and Java.
+
+   Having support for C++ is particularly critical as one of the core components of the system (the pointing component) is written in C++.
+
+   We do not plan to support LabView for CSCs any longer.
+   The components that are still written in LabView (namely, ATMCS and ATPneumatics) will be converted to TCP/IP and their CSCs ported to salobj.
+
+#. Initial support for CI in jenkins.
+
+   This step is probably going to happen in parallel to the SAL work and will be dedicated to adding support for running CI using the kafka version of our system in our jenkins server.
+
+#. Initial tests on TTS.
+
+   Once SAL C++ is available we can start deploying the TSSW components on TTS and running some initial tracking tests.
+   We can start doing these tests even without the Java libraries (used by the camera) so we hope to focus on the C++ libraries first.
+
+   At this point DDS is still our main development and deployment target, e.g. both ts_salobj and ts_sal will be supporting DDS and Kafka, where DDS will remain the main target.
+   We do not expect developers to migrate to using kafka for development yet, except for a few early adopters.
+
+   However, for this stage of the process we expect to make the initial release candidates for salobj and SAL.
+   
+   Support for CI will still be minimum in jenkins, however since this is supposed to be a drop-in implementation we do not expect any roadblocks.
+   
+   We expect that ts_cycle_build will also be branched out to support building the system for Kafka.
+
+   Because ts_idl will no longer be necessary, it will probably be marked for deprecation at this stage.
+
+#. CI fully supported in jenkins.
+
+   At this point we expect that running CI jobs in jenkins will be fully supported.
+
+   The main focus is to support running jobs for salobj and SAL kafka branches.
+   We also should have in place the release jobs, that will make the SAL libraries available for C++ and Java.
+
+   For Python/salobj, there is no additional support needed as conda packaging will be able to provide all the required artifacts.
+
+#. Initial tests at the summit.
+
+   Once we have certified that we can run the system reliably on TTS, we should schedule testing at the summit.
+   The idea is to deploy the same system that was tested on TTS at the summit and execute a 3-5 nights long AuxTel run as well as any ongoing tests with the SST.
+   If possible it would be desirable to run both telescopes at the same time, driven by the Scheduler.
+   However, we must be attentive to the summit calendar and Kafka testing should be done in a way to minimize impact.
+
+   For this step, the kafka versions of both ts_salobj and ts_sal will be on a separate branch and we should rely on release candidate versions for deployment.
+
+   Development will still target the DDS version of salobj and sal.
+
+#. Adoption evaluation.
+
+   After testing at the summit concludes we will evaluate the results and produce a technote with our findings
+
+   If the test succeeds we can keep the summit running the Kafka version of our stack.
+
+#. Developer migration.
+
+   At this point TSSW developers are expected to migrate from the DDS version of salobj and SAL to the kafka version.
+
+   All development shall target the kafka version of salobj and SAL.
+   At this time we expect developers might have to take some time fixing potential issues with unit tests to run their components against the kafka version of the tssw-stack.
+
+   We do not expect code changes to be necessary to adapt to kafka.
+   However, if necessary, this will be the time to do those changes.
+
+#. Initial transition to Kafka.
+
+   At this point all development and deployment will have been migrated to target the kafka version of tssw stack.
+   
+   We will start making a census of the breaking changes that are planned for a full migration to kafka.
+   For example, the ts-idl package will be deprecated and all enumerations will migrate to ts-xml.
+   Developers will start incorporating these changes to their software as time permits.
+
+#. Final transition to Kafka.
+
+   Release of version 8 of salobj implementing breaking changes.
 
 Summary
 =======
